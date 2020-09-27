@@ -20,6 +20,7 @@ namespace RabbitMqExchanges.Workers
         private readonly ILogger<EvenConsumer> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly QueueSettings _queueSettings;
+
         public EvenConsumer(ILogger<EvenConsumer> logger, IServiceProvider serviceProvider, IOptions<QueueSettings> queueSettings)
         {
             _logger = logger;
@@ -31,12 +32,12 @@ namespace RabbitMqExchanges.Workers
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var scope = _serviceProvider.CreateScope();
+               using var scope = _serviceProvider.CreateScope();
 
                 var rabbitMq = scope.ServiceProvider.GetRequiredService<RabbitMqService>();
 
-                //rabbitMq.Channel.QueueDeclare(_queueSettings.OddQueue, _queueSettings.IsDurable, false,
-                //    _queueSettings.AutoDelete, null);
+                rabbitMq.Channel.QueueDeclare(_queueSettings.OddQueue, _queueSettings.IsDurable, false,
+                    _queueSettings.AutoDelete, null);
 
                 var consumer = rabbitMq.CreateConsumer();
 

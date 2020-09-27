@@ -25,13 +25,14 @@ namespace RabbitMqExchanges.Configuration
     {
         private RabbitMqSetting _settings;
         public IModel Channel { get; private set; }
+        public IConnection Connection { get; private set; }
         public RabbitMqService(IOptions<RabbitMqSetting> options)
         {
             _settings = options.Value;
 
             var factory = new ConnectionFactory() { HostName = _settings.RabbitMqUrl };
-            var connection = factory.CreateConnection();
-            Channel = connection.CreateModel();
+             Connection = factory.CreateConnection();
+            Channel = Connection.CreateModel();
             // Consumer= new EventingBasicConsumer(this.Channel);
         }
 
@@ -50,6 +51,9 @@ namespace RabbitMqExchanges.Configuration
             if(!Channel.IsClosed)
                 Channel.Close();
             Channel?.Dispose();
+            Connection.Close();
+            Connection.Dispose();
+            
         }
     }
 }

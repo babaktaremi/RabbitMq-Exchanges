@@ -26,7 +26,7 @@ namespace RabbitMqExchanges.Workers
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var scope = _serviceProvider.CreateScope();
+               using var scope = _serviceProvider.CreateScope();
 
                 var messageService = scope.ServiceProvider.GetRequiredService<IMessageService>();
 
