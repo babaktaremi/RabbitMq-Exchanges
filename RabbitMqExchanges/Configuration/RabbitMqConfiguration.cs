@@ -21,7 +21,7 @@ namespace RabbitMqExchanges.Configuration
         public string RabbitMqUrl { get; set; }
     }
 
-    public class RabbitMqService
+    public class RabbitMqService:IDisposable
     {
         private static ConnectionFactory _factory;
         private static IConnection _connection;
@@ -29,7 +29,6 @@ namespace RabbitMqExchanges.Configuration
         private AsyncEventingBasicConsumer _asyncConsumer;
 
         public IModel Channel { get; private set; }
-        public IConnection Connection { get; private set; }
         public RabbitMqService(IOptions<RabbitMqSetting> options)
         {
             var settings = options.Value;
@@ -40,9 +39,7 @@ namespace RabbitMqExchanges.Configuration
             if (_connection == null)
                 _connection = _factory.CreateConnection();
 
-         
-            if(Channel==null)
-                Channel = _connection.CreateModel();
+            Channel = _connection.CreateModel();
 
             // Consumer= new EventingBasicConsumer(this.Channel);
         }
@@ -57,5 +54,12 @@ namespace RabbitMqExchanges.Configuration
             return _consumer ??= new EventingBasicConsumer(Channel);
         }
 
+        public void Dispose()
+        {
+            if(!Channel.IsClosed)
+                Channel.Close();
+
+            Channel?.Dispose();
+        }
     }
 }
