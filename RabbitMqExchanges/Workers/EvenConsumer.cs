@@ -50,7 +50,7 @@ namespace RabbitMqExchanges.Workers
                 };
 
                 rabbitMq.Channel.BasicConsume(queue: _queueSettings.EvenQueue, autoAck: true, consumer: consumer);
-             
+              
                 await Task.Delay(200, stoppingToken);
             }
         }

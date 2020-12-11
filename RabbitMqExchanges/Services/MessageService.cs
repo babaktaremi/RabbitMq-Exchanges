@@ -48,7 +48,6 @@ namespace RabbitMqExchanges.Services
             var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(model));
             if(number % 2 == 0) {
                 _rabbitMqService.Channel.BasicPublish(exchange: _exchangeSettings.ExchangeName, routingKey: "even",mandatory:false, basicProperties: null, body: body);
-                _rabbitMqService.Channel.Close();
                 return Task.CompletedTask;
             }
             _rabbitMqService.Channel.BasicPublish(exchange: _exchangeSettings.ExchangeName, routingKey: "odd", mandatory: false, basicProperties: null, body: body);

@@ -21,35 +21,40 @@ namespace RabbitMqExchanges.Configuration
         public string RabbitMqUrl { get; set; }
     }
 
-    public class RabbitMqService:IDisposable
+    public class RabbitMqService
     {
-        private RabbitMqSetting _settings;
+        private static ConnectionFactory _factory;
+        private static IConnection _connection;
+        private EventingBasicConsumer _consumer;
+        private AsyncEventingBasicConsumer _asyncConsumer;
+
         public IModel Channel { get; private set; }
         public RabbitMqService(IOptions<RabbitMqSetting> options)
         {
-            _settings = options.Value;
+            var settings = options.Value;
 
-            var factory = new ConnectionFactory() { HostName = _settings.RabbitMqUrl };
-            var connection = factory.CreateConnection();
-            Channel = connection.CreateModel();
+            if (_factory == null)
+                _factory = new ConnectionFactory() { HostName = settings.RabbitMqUrl };
+
+            if (_connection == null)
+                _connection = _factory.CreateConnection();
+
+         
+            if(Channel==null)
+                Channel = _connection.CreateModel();
+
             // Consumer= new EventingBasicConsumer(this.Channel);
         }
 
         public AsyncEventingBasicConsumer CreateConsumerAsync()
         {
-            return new AsyncEventingBasicConsumer(Channel);
+            return _asyncConsumer ??= new AsyncEventingBasicConsumer(Channel);
         }
 
         public EventingBasicConsumer CreateConsumer()
         {
-            return new EventingBasicConsumer(Channel);
+            return _consumer ??= new EventingBasicConsumer(Channel);
         }
 
-        public void Dispose()
-        {
-            if(!Channel.IsClosed)
-                Channel.Close();
-            Channel?.Dispose();
-        }
     }
 }
