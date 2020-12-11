@@ -32,9 +32,10 @@ namespace RabbitMqExchanges
 
                     services.AddScoped<IMessageService, MessageService>();
 
+                    services.AddHostedService<Producer>();
                     services.AddHostedService<OddConsumer>();
                     services.AddHostedService<EvenConsumer>();
-                    services.AddHostedService<Producer>();
+                    
                 });
     }
 }

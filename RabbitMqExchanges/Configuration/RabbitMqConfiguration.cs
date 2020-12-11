@@ -29,6 +29,7 @@ namespace RabbitMqExchanges.Configuration
         private AsyncEventingBasicConsumer _asyncConsumer;
 
         public IModel Channel { get; private set; }
+        public IConnection Connection { get; private set; }
         public RabbitMqService(IOptions<RabbitMqSetting> options)
         {
             var settings = options.Value;

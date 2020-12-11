@@ -21,7 +21,8 @@ namespace RabbitMqExchanges.Workers
        private readonly ILogger<OddConsumer> _logger;
        private readonly IServiceProvider _serviceProvider;
        private readonly QueueSettings _queueSettings;
-       public OddConsumer(ILogger<OddConsumer> logger, IServiceProvider serviceProvider,IOptions<QueueSettings> queueSettings)
+
+       public OddConsumer(ILogger<OddConsumer> logger, IServiceProvider serviceProvider, IOptions<QueueSettings> queueSettings)
        {
            _logger = logger;
            _serviceProvider = serviceProvider;
@@ -32,14 +33,14 @@ namespace RabbitMqExchanges.Workers
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var scope = _serviceProvider.CreateScope();
+              using  var scope = _serviceProvider.CreateScope();
 
                 var rabbitMq = scope.ServiceProvider.GetRequiredService<RabbitMqService>();
 
-                //rabbitMq.Channel.QueueDeclare(_queueSettings.OddQueue, _queueSettings.IsDurable, false,
-                //    _queueSettings.AutoDelete, null);
+                rabbitMq.Channel.QueueDeclare(_queueSettings.OddQueue, _queueSettings.IsDurable, false,
+                    _queueSettings.AutoDelete, null);
 
-               var consumer= rabbitMq.CreateConsumer();
+                var consumer= rabbitMq.CreateConsumer();
 
                consumer.Received+= (sender, args) =>
                {
@@ -51,7 +52,7 @@ namespace RabbitMqExchanges.Workers
                } ;
 
                rabbitMq.Channel.BasicConsume(queue: _queueSettings.OddQueue, autoAck: true, consumer: consumer);
-               
+              
                 await Task.Delay(300, stoppingToken); 
             }
         }
