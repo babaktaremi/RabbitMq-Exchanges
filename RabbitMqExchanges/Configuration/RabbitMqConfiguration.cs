@@ -24,7 +24,7 @@ namespace RabbitMqExchanges.Configuration
     public class RabbitMqService:IDisposable
     {
         private static ConnectionFactory _factory;
-        private static IConnection _connection;
+        private readonly  IConnection _connection;
         private EventingBasicConsumer _consumer;
         private AsyncEventingBasicConsumer _asyncConsumer;
 
@@ -60,6 +60,8 @@ namespace RabbitMqExchanges.Configuration
                 Channel.Close();
 
             Channel?.Dispose();
+
+            _connection.Dispose();
         }
     }
 }
